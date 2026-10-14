@@ -8,17 +8,8 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.0'
-      - run: flutter create. --platforms=android
+      - run: flutter pub get
       - run: flutter pub add webview_flutter
-      - run: |
-          cat > lib/main.dart << 'EOF'
-          import 'package:flutter/material.dart';
-          import 'package:webview_flutter/webview_flutter.dart';
-          void main(){runApp(const MyApp());}
-          class MyApp extends StatelessWidget{const MyApp({super.key});@override Widget build(BuildContext c){return const MaterialApp(debugShowCheckedModeBanner:false,home:WebPage());}}
-          class WebPage extends StatefulWidget{const WebPage({super.key});@override State<WebPage> createState()=>_W();}
-          class _W extends State<WebPage>{late final WebViewController C;@override void initState(){super.initState();C=WebViewController()..setJavaScriptMode(JavaScriptMode.unrestricted)..loadRequest(Uri.parse('https://sprearn.bd'));}@override Widget build(BuildContext context){return Scaffold(body:SafeArea(child:WebViewWidget(controller:C)));}}
-          EOF
       - run: flutter build apk --debug
       - uses: actions/upload-artifact@v4
         with:
