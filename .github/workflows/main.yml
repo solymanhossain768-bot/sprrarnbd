@@ -5,17 +5,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.47.7' # এটা Github নিজেই সাজেস্ট করছে
+          flutter-version: '3.47.7'
           channel: 'stable'
-
+      - uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - run: flutter create. --platforms=android --org com.sprearn --project-name sprearnbd
       - run: flutter pub get
-      - run: flutter pub add webview_flutter
+      - run: flutter pub add webview_flutter:^4.10.0 google_mobile_ads:^5.1.0
       - run: flutter build apk --debug
-
       - uses: actions/upload-artifact@v4
         with:
-          name: SPR-APK
+          name: app-debug
           path: build/app/outputs/flutter-apk/app-debug.apk
