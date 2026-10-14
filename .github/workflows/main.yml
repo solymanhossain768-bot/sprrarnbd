@@ -1,33 +1,50 @@
 name: Build APK
-"on":
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      - uses: subosito/flutter-action@v2
         with:
-          java-version: '17'
-          distribution: 'temurin'
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-      - name: Clean wrong files and recreate Android folder
-        run: |
-          rm -rf app build.gradle settings.gradle gradle gradlew
-          flutter create . --platforms android
-      - name: Get dependencies
-        run: flutter pub get
-      - name: Build APK
-        run: flutter build apk --debug
-      - name: Upload APK
-        if: success()
-        uses: actions/upload-artifact@v4
+          flutter-version: '3.22.0'
+      - run: |
+          flutter create. --platforms=android --org com.sprearnbd.app --project-name sprearn_bd
+          cat > lib/main.dart << 'EOF'
+          import 'package:flutter/material.dart';
+          import 'package:webview_flutter/webview_flutter.dart';
+          void main() { runApp(MyApp()); }
+          class MyApp extends StatelessWidget {
+            @override
+            Widget build(BuildContext context) {
+              return MaterialApp(
+                debugShowCheckedModeBanner: false,
+                home: WebViewPage(),
+              );
+            }
+          }
+          class WebViewPage extends StatefulWidget {
+            @override
+            _WebViewPageState createState() => _WebViewPageState();
+          }
+          class _WebViewPageState extends State<WebViewPage> {
+            late final WebViewController controller;
+            @override
+            void initState() {
+              super.initState();
+              controller = WebViewController()
+               ..setJavaScriptMode(JavaScriptMode.unrestricted)
+               ..loadRequest(Uri.parse('https://sprearn.bd'));
+            }
+            @override
+            Widget build(BuildContext context) {
+              return Scaffold(body: SafeArea(child: WebViewWidget(controller: controller)));
+            }
+          }
+          EOF
+      - run: flutter pub add webview_flutter
+      - run: flutter build apk --debug
+      - uses: actions/upload-artifact@v4
         with:
           name: app-debug
           path: build/app/outputs/flutter-apk/app-debug.apk
