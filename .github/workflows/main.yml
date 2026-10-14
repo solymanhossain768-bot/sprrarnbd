@@ -8,39 +8,37 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.0'
-      - name: Build with SPR Logo
+      - name: Auto Logo + Build
         run: |
           rm -rf android ios web windows linux macos
           flutter create. --platforms=android --org com.sprearn --project-name sprearn_bd
           flutter pub add webview_flutter
-          pip install pillow -q
-          python3 << 'PY'
+          python3 -c "
           from PIL import Image, ImageDraw, ImageFont
-          # Create SPR ribbon icon 1024x1024
-          img = Image.new('RGB', (1024, 1024), (255,255,255))
-          draw = ImageDraw.Draw(img)
-          # Simple SPR text as logo (bold)
+          W=1024; H=1024
+          img=Image.new('RGB',(W,H),(255,255,255))
+          d=ImageDraw.Draw(img)
+          # SPR big
           try:
-              font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 380)
+              f=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',320)
+              f2=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',70)
           except:
-              font = ImageFont.load_default()
-          draw.text((80, 280), "SPR", fill=(0, 180, 210), font=font)
+              f=ImageFont.load_default(); f2=f
+          d.text((150,180),'SPR',fill=(0,170,220),font=f)
+          d.text((210,620),'sprearn.bd',fill=(10,60,120),font=f2)
           img.save('app_icon.png')
-          import os, glob
-          for d in glob.glob('android/app/src/main/res/mipmap-*'):
-              os.system(f'cp app_icon.png {d}/ic_launcher.png')
-              os.system(f'cp app_icon.png {d}/launcher_icon.png')
-          PY
+          "
+          for d in android/app/src/main/res/mipmap-*; do cp app_icon.png $d/ic_launcher.png; done
           cat > lib/main.dart << 'EOF'
           import 'package:flutter/material.dart';
           import 'package:webview_flutter/webview_flutter.dart';
-          void main(){WidgetsFlutterBinding.ensureInitialized();runApp(const MyApp());}
-          class MyApp extends StatelessWidget{const MyApp({super.key});@override Widget build(BuildContext context){return const MaterialApp(debugShowCheckedModeBanner:false,home:WebPage());}}
+          void main(){runApp(const MyApp());}
+          class MyApp extends StatelessWidget{const MyApp({super.key});@override Widget build(BuildContext c){return MaterialApp(debugShowCheckedModeBanner:false,home:WebPage());}}
           class WebPage extends StatefulWidget{const WebPage({super.key});@override State<WebPage> createState()=>_WebPageState();}
-          class _WebPageState extends State<WebPage>{late final WebViewController c;@override void initState(){super.initState();c=WebViewController()..setJavaScriptMode(JavaScriptMode.unrestricted)..loadRequest(Uri.parse('https://sprearn.bd'));}@override Widget build(BuildContext context){return Scaffold(body:SafeArea(child:WebViewWidget(controller:c)));}}
+          class _WebPageState extends State<WebPage>{late final WebViewController c;@override void initState(){super.initState();c=WebViewController()..setJavaScriptMode(JavaScriptMode.unrestricted)..loadRequest(Uri.parse('https://sprearn.bd'));}@override Widget build(BuildContext c){return Scaffold(body:SafeArea(child:WebViewWidget(controller:this.c)));}}
           EOF
       - run: flutter build apk --debug
       - uses: actions/upload-artifact@v4
         with:
-          name: sprearn-SPR-APK
+          name: SPR-Final-APK
           path: build/app/outputs/flutter-apk/app-debug.apk 
