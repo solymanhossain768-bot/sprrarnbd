@@ -8,43 +8,39 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.0'
-      - run: |
-          flutter create. --platforms=android --org com.sprearnbd.app --project-name sprearn_bd
+      - name: Build with SPR Logo
+        run: |
+          rm -rf android ios web windows linux macos
+          flutter create. --platforms=android --org com.sprearn --project-name sprearn_bd
+          flutter pub add webview_flutter
+          pip install pillow -q
+          python3 << 'PY'
+          from PIL import Image, ImageDraw, ImageFont
+          # Create SPR ribbon icon 1024x1024
+          img = Image.new('RGB', (1024, 1024), (255,255,255))
+          draw = ImageDraw.Draw(img)
+          # Simple SPR text as logo (bold)
+          try:
+              font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 380)
+          except:
+              font = ImageFont.load_default()
+          draw.text((80, 280), "SPR", fill=(0, 180, 210), font=font)
+          img.save('app_icon.png')
+          import os, glob
+          for d in glob.glob('android/app/src/main/res/mipmap-*'):
+              os.system(f'cp app_icon.png {d}/ic_launcher.png')
+              os.system(f'cp app_icon.png {d}/launcher_icon.png')
+          PY
           cat > lib/main.dart << 'EOF'
           import 'package:flutter/material.dart';
           import 'package:webview_flutter/webview_flutter.dart';
-          void main() { runApp(MyApp()); }
-          class MyApp extends StatelessWidget {
-            @override
-            Widget build(BuildContext context) {
-              return MaterialApp(
-                debugShowCheckedModeBanner: false,
-                home: WebViewPage(),
-              );
-            }
-          }
-          class WebViewPage extends StatefulWidget {
-            @override
-            _WebViewPageState createState() => _WebViewPageState();
-          }
-          class _WebViewPageState extends State<WebViewPage> {
-            late final WebViewController controller;
-            @override
-            void initState() {
-              super.initState();
-              controller = WebViewController()
-               ..setJavaScriptMode(JavaScriptMode.unrestricted)
-               ..loadRequest(Uri.parse('https://sprearn.bd'));
-            }
-            @override
-            Widget build(BuildContext context) {
-              return Scaffold(body: SafeArea(child: WebViewWidget(controller: controller)));
-            }
-          }
+          void main(){WidgetsFlutterBinding.ensureInitialized();runApp(const MyApp());}
+          class MyApp extends StatelessWidget{const MyApp({super.key});@override Widget build(BuildContext context){return const MaterialApp(debugShowCheckedModeBanner:false,home:WebPage());}}
+          class WebPage extends StatefulWidget{const WebPage({super.key});@override State<WebPage> createState()=>_WebPageState();}
+          class _WebPageState extends State<WebPage>{late final WebViewController c;@override void initState(){super.initState();c=WebViewController()..setJavaScriptMode(JavaScriptMode.unrestricted)..loadRequest(Uri.parse('https://sprearn.bd'));}@override Widget build(BuildContext context){return Scaffold(body:SafeArea(child:WebViewWidget(controller:c)));}}
           EOF
-      - run: flutter pub add webview_flutter
       - run: flutter build apk --debug
       - uses: actions/upload-artifact@v4
         with:
-          name: app-debug
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          name: sprearn-SPR-APK
+          path: build/app/outputs/flutter-apk/app-debug.apk 
