@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
-void main() => runApp(MyApp());
+import 'package:webview_flutter/webview_flutter.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MyApp());
+}
+
 class MyApp extends StatelessWidget {
-  @override Widget build(BuildContext context) => MaterialApp(
-    title: 'sprearn.bd',
-    home: Scaffold(
-      backgroundColor: Color(0xFF0a0b0f),
-      body: Center(child: Text('sprearn.bd', style: TextStyle(color: Color(0xFFc6ff00), fontSize: 28, fontWeight: FontWeight.bold))),
-    ),
-  );
+  const MyApp({super.key});
+  @override
+  Widget build(BuildContext context) {
+    final controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..loadRequest(Uri.parse('https://sprearn.bd'));
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: SafeArea(child: WebViewWidget(controller: controller)),
+      ),
+    );
+  }
 }
