@@ -19,11 +19,11 @@ jobs:
           img=Image.new('RGB',(W,H),(255,255,255))
           d=ImageDraw.Draw(img)
           try:
-              f=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',320)
-              f2=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',70)
+            f=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',320)
+            f2=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',70)
           except:
-              f=ImageFont.load_default()
-              f2=f
+            f=ImageFont.load_default()
+            f2=f
           d.text((150,180),'SPR',fill=(0,170,220),font=f)
           d.text((210,620),'sprearn.bd',fill=(10,60,120),font=f2)
           img.save('app_icon.png')
