@@ -1,3 +1,4 @@
+
 name: Build APK
 on: [push]
 jobs:
@@ -15,27 +16,22 @@ jobs:
           flutter pub add webview_flutter
           python3 << 'PY'
           from PIL import Image, ImageDraw, ImageFont
-          W,H=1024,1024
-          img=Image.new('RGB',(W,H),(255,255,255))
+          img=Image.new('RGB',(1024,1024),(255,255,255))
           d=ImageDraw.Draw(img)
-          try:
-            f=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',320)
-            f2=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',70)
-          except:
-            f=ImageFont.load_default()
-            f2=f
+          f=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',320)
+          f2=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',70)
           d.text((150,180),'SPR',fill=(0,170,220),font=f)
           d.text((210,620),'sprearn.bd',fill=(10,60,120),font=f2)
           img.save('app_icon.png')
           PY
-          for d in android/app/src/main/res/mipmap-*; do cp app_icon.png $d/ic_launcher.png; done
+          for p in android/app/src/main/res/mipmap-*/; do cp app_icon.png ${p}ic_launcher.png; done
           cat > lib/main.dart << 'EOF'
           import 'package:flutter/material.dart';
           import 'package:webview_flutter/webview_flutter.dart';
           void main(){runApp(const MyApp());}
-          class MyApp extends StatelessWidget{const MyApp({super.key});@override Widget build(BuildContext c){return MaterialApp(debugShowCheckedModeBanner:false,home:WebPage());}}
-          class WebPage extends StatefulWidget{const WebPage({super.key});@override State<WebPage> createState()=>_WebPageState();}
-          class _WebPageState extends State<WebPage>{late final WebViewController c;@override void initState(){super.initState();c=WebViewController()..setJavaScriptMode(JavaScriptMode.unrestricted)..loadRequest(Uri.parse('https://sprearn.bd'));}@override Widget build(BuildContext c){return Scaffold(body:SafeArea(child:WebViewWidget(controller:this.c)));}}
+          class MyApp extends StatelessWidget{const MyApp({super.key});@override Widget build(BuildContext c){return const MaterialApp(debugShowCheckedModeBanner:false,home:WebPage());}}
+          class WebPage extends StatefulWidget{const WebPage({super.key});@override State<WebPage> createState()=>_W();}
+          class _W extends State<WebPage>{late final WebViewController C;@override void initState(){super.initState();C=WebViewController()..setJavaScriptMode(JavaScriptMode.unrestricted)..loadRequest(Uri.parse('https://sprearn.bd'));}@override Widget build(BuildContext context){return Scaffold(body:SafeArea(child:WebViewWidget(controller:C)));}}
           EOF
       - run: flutter build apk --debug
       - uses: actions/upload-artifact@v4
