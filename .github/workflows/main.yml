@@ -13,21 +13,21 @@ jobs:
           rm -rf android ios web windows linux macos
           flutter create. --platforms=android --org com.sprearn --project-name sprearn_bd
           flutter pub add webview_flutter
-          python3 -c "
+          python3 << 'PY'
           from PIL import Image, ImageDraw, ImageFont
-          W=1024; H=1024
+          W,H=1024,1024
           img=Image.new('RGB',(W,H),(255,255,255))
           d=ImageDraw.Draw(img)
-          # SPR big
           try:
               f=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',320)
               f2=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',70)
           except:
-              f=ImageFont.load_default(); f2=f
+              f=ImageFont.load_default()
+              f2=f
           d.text((150,180),'SPR',fill=(0,170,220),font=f)
           d.text((210,620),'sprearn.bd',fill=(10,60,120),font=f2)
           img.save('app_icon.png')
-          "
+          PY
           for d in android/app/src/main/res/mipmap-*; do cp app_icon.png $d/ic_launcher.png; done
           cat > lib/main.dart << 'EOF'
           import 'package:flutter/material.dart';
@@ -41,4 +41,4 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: SPR-Final-APK
-          path: build/app/outputs/flutter-apk/app-debug.apk 
+          path: build/app/outputs/flutter-apk/app-debug.apk
