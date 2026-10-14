@@ -12,7 +12,7 @@ jobs:
       - name: Auto Logo + Build
         run: |
           rm -rf android ios web windows linux macos
-          flutter create. --platforms=android --org com.sprearn --project-name sprearn_bd
+          flutter create . --platforms=android --org com.sprearn --project-name sprearn_bd
           flutter pub add webview_flutter
           python3 << 'PY'
           from PIL import Image, ImageDraw, ImageFont
