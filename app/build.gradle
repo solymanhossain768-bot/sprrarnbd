@@ -15,9 +15,9 @@ android {
     signingConfigs {
         release {
             storeFile file(project.rootDir.absolutePath + '/app/keystore.jks')
-            storePassword System.getenv('KEYSTORE_PASSWORD') ?: 'Katz@8i83vxo6!'
+            storePassword System.getenv('KEYSTORE_PASSWORD') ?: 'Katz@9129qwpo!'
             keyAlias 'appkey'
-            keyPassword System.getenv('KEY_PASSWORD') ?: 'Katz@8i83vxo6!'
+            keyPassword System.getenv('KEY_PASSWORD') ?: 'Katz@9129qwpo!'
         }
     }
     buildTypes {
